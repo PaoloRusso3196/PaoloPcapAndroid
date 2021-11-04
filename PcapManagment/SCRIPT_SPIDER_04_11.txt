@@ -1,0 +1,81 @@
+import pandas as pd
+import time
+import os
+import numpy as np
+import scipy
+import ast
+import matplotlib.pyplot as plt
+from scipy.interpolate import interp1d
+path="C:/Users/Utente/Desktop/FiltraggioPcap/PCAP.csv"
+list_IatPkt=[]
+list_IatMsg=[]
+list_PktSize=[]
+list_MsgSize=[]
+employee_dict=[]
+cattura=1
+"----------------------------------------------------------------------"
+def PloatCdf(list_element):
+    list_element=list(map(float,list_element))
+    list_element.sort()
+    
+  
+    cumulative = np.cumsum(list_element)
+    plt.plot(cumulative,label="cattura_csv")
+    plt.show()
+    
+    
+"-----------------------------------------------------------------------"
+#IatPkt_csv=str(df["ARRIVAL_TIME_PACKET"][i])
+#print(cattura_csv)
+#IatPkt_Tuple=ast.literal_eval(( IatPkt_csv))
+
+#for x in IatPkt_Tuple:
+#       list_IatPkt.append(x)
+
+    
+            
+                         
+"-----------------------------------------------------------------------"
+df = pd.read_csv(path, delimiter=',')
+while True:
+    cattura_str="c"+str(cattura)
+    print("Elaborazione Cattura "+cattura_str)
+    df_capture=df['CaptureNumber']==cattura_str
+    filtered_df_capture = df[df_capture]
+    if len( filtered_df_capture)>0:
+                  for i in filtered_df_capture.index:
+                      
+                          IatPkt_csv=str(df["ARRIVAL_TIME_PACKET"][i])
+                          IatPkt_actual=ast.literal_eval(( IatPkt_csv))
+                          for x in IatPkt_actual:
+                              list_IatPkt.append(x)
+                              
+                          SizePkt_csv=str(df["PACKET_SIZE"][i])
+                          SizePkt_actual=ast.literal_eval((SizePkt_csv))
+                          for x in SizePkt_actual:
+                              list_PktSize.append(x)
+                              
+                          IatMsg_csv=str(df["ARRIVAL_TIME_MSG"][i])
+                          IatMsg_actual=ast.literal_eval(( IatMsg_csv))
+                          for x in IatMsg_actual:
+                               list_IatMsg.append(x)
+                               
+                          SizeMsg_csv=str(df["SIZE_MESSAGE"][i])
+                          SizeMsg_actual=ast.literal_eval((SizeMsg_csv))
+                          for x in SizeMsg_actual:
+                               list_MsgSize.append(x)    
+                      
+                  print("stampa cattura"+cattura_str)
+                  #PloatCdf(list_IatPkt)
+                  #PloatCdf(list_PktSize)
+                  #PloatCdf(list_IatMsg)
+                  PloatCdf(list_MsgSize)
+                  #print(list_IatPkt)
+                  list_IatPkt.clear()
+                  list_PktSize.clear()
+                  list_IatMsg.clear()
+                  list_MsgSize.clear()
+                  
+    else:
+                       break
+    cattura=int(cattura)+1
