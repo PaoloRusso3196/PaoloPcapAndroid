@@ -18,7 +18,8 @@ iat_msg=0
 biflux="null"
 employee_dict=[]
 cattura=0
-check=0
+src_port=0
+dst_port=0
 "......................................................"
 for cartella, sottocartelle, files in os.walk(os.getcwd()):
     s=f'{sottocartelle}'
@@ -45,6 +46,8 @@ for cartella, sottocartelle, files in os.walk(os.getcwd()):
                                      ip_source=str(pkt[IP].src)
                                      ip_dst=str(pkt[IP].dst)
                                      biflux=ip_source+"-"+ip_dst
+                                     src_port=pkt[IP].sport
+                                     dst_port=pkt[IP].dport 
                                      if pkt.haslayer(Raw):
                                             load=(pkt[Raw].load)
                                             msg_size=len(load)
@@ -60,7 +63,71 @@ for cartella, sottocartelle, files in os.walk(os.getcwd()):
                                             last_time_msg=actual_time_msg
                                      i=i+1
                                      string_catt="c"+str(cattura)
-                                     employee_dict.append([string_catt,biflux,iat_pkt,pkt_size,iat_msg,msg_size])
+                                     employee_dict.append([string_catt,biflux,src_port,dst_port,iat_pkt,pkt_size,iat_msg,msg_size])
 if employee_dict:
-  df = pd.DataFrame(employee_dict, columns =['CaptureNumber', 'BIFLUXS', 'ARRIVAL_TIME_PACKET','PACKET_SIZE','ARRIVAL_TIME_MSG','SIZE_MESSAGE'])
-  df.to_csv("midterm.csv", index=False, sep=",")
+  df = pd.DataFrame(employee_dict, columns =['CaptureNumber', 'BIFLUXS','SOURCE_PORT','DESTINATION_PORT','ARRIVAL_TIME_PACKET','PACKET_SIZE','ARRIVAL_TIME_MSG','SIZE_MESSAGE'])
+  df.sort_values(by=['CaptureNumber','BIFLUXS'], inplace = True)
+  #df.to_csv("midterm.csv", index=False, sep=",")
+  print(df)
+  list_IatPkt=[]
+  list_IatMsg=[]
+  list_PktSize=[]
+  list_MsgSize=[]
+  list_SrcPrt=[]
+  list_DstPrt=[]
+  employee_dict=[]
+  cattura=1
+  print(employee_dict)
+  while True:
+        cattura_str="c"+str(cattura)
+        print("Elaborazione Cattura "+cattura_str)
+        df_capture=df['CaptureNumber']==cattura_str
+        filtered_df_capture = df[df_capture]
+        if len( filtered_df_capture)>0:
+                      list_biflux=(filtered_df_capture.drop_duplicates(subset = "BIFLUXS"))
+                      for i in list_biflux.index:
+                                bflx=str(list_biflux["BIFLUXS"][i])
+                                #print(bflx)
+                                df_mask=filtered_df_capture['BIFLUXS']==bflx
+                                filtered_df = filtered_df_capture[df_mask]
+                                #print(filtered_df)
+                                for i in filtered_df.index:
+                                         IatPkt=(df["ARRIVAL_TIME_PACKET"][i])
+                                         SizePkt=(df["PACKET_SIZE"][i])
+                                         IatMsg=(df["ARRIVAL_TIME_MSG"][i])
+                                         SizeMsg=(df["SIZE_MESSAGE"][i])
+                                         SrcPrt=(df["SOURCE_PORT"][i])
+                                         DstPrt=(df["DESTINATION_PORT"][i])
+                                         list_IatPkt.append(IatPkt)
+                                         list_PktSize.append(SizePkt)
+                                         list_IatMsg.append(IatMsg)
+                                         list_MsgSize.append(SizeMsg)
+                                         list_SrcPrt.append(SrcPrt)
+                                         list_DstPrt.append(DstPrt)
+                                IatPktList=",".join(map(str,list_IatPkt))
+                                SizePktList=",".join(map(str,list_PktSize))
+                                IatMsgList=",".join(map(str,list_IatMsg))
+                                SizeMsgList=",".join(map(str,list_MsgSize))
+                                SrcPrtList=",".join(map(str,list_SrcPrt))
+                                DstPrtList=",".join(map(str,list_DstPrt))
+                                IatPktList="["+IatPktList+"]"
+                                SizePktList="["+SizePktList+"]"
+                                IatMsgListt="["+IatMsgList+"]"
+                                SizeMsgList="["+SizeMsgList+"]"
+                                SrcPrtList="["+SrcPrtList+"]"
+                                DstPrtList="["+DstPrtList+"]"
+                                list_IatPkt.clear()
+                                list_PktSize.clear()
+                                list_IatMsg.clear()
+                                list_MsgSize.clear()
+                                list_SrcPrt.clear()
+                                list_DstPrt.clear()
+                                employee_dict.append([ cattura_str, bflx,SrcPrtList,DstPrtList,IatPktList,SizePktList,IatMsgList,SizeMsgList])
+        else:
+                       break
+        cattura=int(cattura)+1    
+  #print(employee_dict)
+  a = pd.DataFrame(employee_dict, columns =['CaptureNumber', 'BIFLUXS','SOURCE_PORT','DESTINATION_PORT','ARRIVAL_TIME_PACKET','PACKET_SIZE','ARRIVAL_TIME_MSG','SIZE_MESSAGE'])
+  a.to_csv("PCAP.csv", index=False, sep=",",mode="w")
+ 
+  
