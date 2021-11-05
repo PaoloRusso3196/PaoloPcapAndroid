@@ -20,12 +20,18 @@ employee_dict=[]
 cattura=0
 src_port=0
 dst_port=0
+proto_type=0
+protocol="NULL"
 "......................................................"
 for cartella, sottocartelle, files in os.walk(os.getcwd()):
     s=f'{sottocartelle}'
     s=s[2:9]
     if not s== "Analisi":
            for file in files:
+                  if file.endswith(".csv"):
+                      directory_csv=f'{cartella}'+"/"+file
+                      print(directory_csv)
+                      os.remove(directory_csv)
                   if file.endswith(".pcap"):
                           i=0
                           #employee_dict.clear()
@@ -47,7 +53,12 @@ for cartella, sottocartelle, files in os.walk(os.getcwd()):
                                      ip_dst=str(pkt[IP].dst)
                                      biflux=ip_source+"-"+ip_dst
                                      src_port=pkt[IP].sport
-                                     dst_port=pkt[IP].dport 
+                                     dst_port=pkt[IP].dport
+                                     protocol_type=pkt[IP].proto
+                                     if protocol_type== 6:
+                                               protocol='TCP'
+                                     elif protocol_type== 17:
+                                               protocol='UDP'
                                      if pkt.haslayer(Raw):
                                             load=(pkt[Raw].load)
                                             msg_size=len(load)
@@ -63,9 +74,9 @@ for cartella, sottocartelle, files in os.walk(os.getcwd()):
                                             last_time_msg=actual_time_msg
                                      i=i+1
                                      string_catt="c"+str(cattura)
-                                     employee_dict.append([string_catt,biflux,src_port,dst_port,iat_pkt,pkt_size,iat_msg,msg_size])
+                                     employee_dict.append([string_catt,biflux,protocol,src_port,dst_port,iat_pkt,pkt_size,iat_msg,msg_size])
 if employee_dict:
-  df = pd.DataFrame(employee_dict, columns =['CaptureNumber', 'BIFLUXS','SOURCE_PORT','DESTINATION_PORT','ARRIVAL_TIME_PACKET','PACKET_SIZE','ARRIVAL_TIME_MSG','SIZE_MESSAGE'])
+  df = pd.DataFrame(employee_dict, columns =['CaptureNumber', 'BIFLUXS','PROTOCOL','SOURCE_PORT','DESTINATION_PORT','ARRIVAL_TIME_PACKET','PACKET_SIZE','ARRIVAL_TIME_MSG','SIZE_MESSAGE'])
   df.sort_values(by=['CaptureNumber','BIFLUXS'], inplace = True)
   #df.to_csv("midterm.csv", index=False, sep=",")
   print(df)
@@ -75,6 +86,7 @@ if employee_dict:
   list_MsgSize=[]
   list_SrcPrt=[]
   list_DstPrt=[]
+  list_Protocol=[]
   employee_dict=[]
   cattura=1
   print(employee_dict)
@@ -104,6 +116,8 @@ if employee_dict:
                                          list_MsgSize.append(SizeMsg)
                                          list_SrcPrt.append(SrcPrt)
                                          list_DstPrt.append(DstPrt)
+                                list_SrcPrt = list(set(list_SrcPrt))
+                                list_DstPrt = list(set(list_DstPrt))
                                 IatPktList=",".join(map(str,list_IatPkt))
                                 SizePktList=",".join(map(str,list_PktSize))
                                 IatMsgList=",".join(map(str,list_IatMsg))
@@ -122,12 +136,12 @@ if employee_dict:
                                 list_MsgSize.clear()
                                 list_SrcPrt.clear()
                                 list_DstPrt.clear()
-                                employee_dict.append([ cattura_str, bflx,SrcPrtList,DstPrtList,IatPktList,SizePktList,IatMsgList,SizeMsgList])
+                                employee_dict.append([ cattura_str,bflx,protocol,SrcPrtList,DstPrtList,IatPktList,SizePktList,IatMsgList,SizeMsgList])
         else:
                        break
         cattura=int(cattura)+1    
   #print(employee_dict)
-  a = pd.DataFrame(employee_dict, columns =['CaptureNumber', 'BIFLUXS','SOURCE_PORT','DESTINATION_PORT','ARRIVAL_TIME_PACKET','PACKET_SIZE','ARRIVAL_TIME_MSG','SIZE_MESSAGE'])
+  a = pd.DataFrame(employee_dict, columns =['CaptureNumber', 'BIFLUXS','PROTOCOL','SOURCE_PORT','DESTINATION_PORT','ARRIVAL_TIME_PACKET','PACKET_SIZE','ARRIVAL_TIME_MSG','SIZE_MESSAGE'])
   a.to_csv("PCAP.csv", index=False, sep=",",mode="w")
  
   
