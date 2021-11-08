@@ -110,6 +110,7 @@ if employee_dict:
                                          SizeMsg=(df["SIZE_MESSAGE"][i])
                                          SrcPrt=(df["SOURCE_PORT"][i])
                                          DstPrt=(df["DESTINATION_PORT"][i])
+                                         Prtl=(df["PROTOCOL"][i])
                                          list_IatPkt.append(IatPkt)
                                          list_PktSize.append(SizePkt)
                                          list_IatMsg.append(IatMsg)
@@ -126,7 +127,7 @@ if employee_dict:
                                 DstPrtList=",".join(map(str,list_DstPrt))
                                 IatPktList="["+IatPktList+"]"
                                 SizePktList="["+SizePktList+"]"
-                                IatMsgListt="["+IatMsgList+"]"
+                                IatMsgList="["+IatMsgList+"]"
                                 SizeMsgList="["+SizeMsgList+"]"
                                 SrcPrtList="["+SrcPrtList+"]"
                                 DstPrtList="["+DstPrtList+"]"
@@ -136,12 +137,12 @@ if employee_dict:
                                 list_MsgSize.clear()
                                 list_SrcPrt.clear()
                                 list_DstPrt.clear()
-                                employee_dict.append([ cattura_str,bflx,protocol,SrcPrtList,DstPrtList,IatPktList,SizePktList,IatMsgList,SizeMsgList])
+                                employee_dict.append([cattura_str,bflx,Prtl,SrcPrtList,DstPrtList,IatPktList,SizePktList,IatMsgList,SizeMsgList])
         else:
                        break
         cattura=int(cattura)+1    
   #print(employee_dict)
   a = pd.DataFrame(employee_dict, columns =['CaptureNumber', 'BIFLUXS','PROTOCOL','SOURCE_PORT','DESTINATION_PORT','ARRIVAL_TIME_PACKET','PACKET_SIZE','ARRIVAL_TIME_MSG','SIZE_MESSAGE'])
-  a.to_csv("PCAP.csv", index=False, sep=",",mode="w")
+  a.to_csv("PCAP.csv", index=False, sep=";",mode="w")
  
   
