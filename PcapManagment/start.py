@@ -1,6 +1,8 @@
 import csv
 import pandas as pd
 import os
+import re
+import json
 from operator import itemgetter
 #load_layer('tls')
 "------------declare vairiables--------------------"
@@ -22,17 +24,40 @@ src_port=0
 dst_port=0
 proto_type=0
 protocol="NULL"
+list_activity=[]
+list_AppName=[]
+pcap_index=0
+i=0
 "......................................................"
 for cartella, sottocartelle, files in os.walk(os.getcwd()):
     s=f'{sottocartelle}'
     s=s[2:9]
     if not s== "Analisi":
            for file in files:
-                  if file.endswith(".csv"):
-                      directory_csv=f'{cartella}'+"/"+file
-                      print(directory_csv)
-                      os.remove(directory_csv)
+                  if i==0:
+                     if file.endswith(".json"):
+                        print("Okk")
+                        directory_json=f'{cartella}'+"/"+file
+                        with open(directory_json) as f:
+                             activity_info= json.load(f)
+                             for p in activity_info:
+                                    print(p["ACTIVITY"])
+                                    list_activity.append(p["ACTIVITY"])
+                                    list_AppName.append(p["APP"])
+
+
+
+                     if file.endswith(".csv"):
+                         directory_csv=f'{cartella}'+"/"+file
+                         print(directory_csv)
+                         os.remove(directory_csv)
                   if file.endswith(".pcap"):
+                          #end = file.find('.pcap')
+                          #app_name =file[0:end]
+                          app_name =list_AppName[pcap_index]
+                          label_activity=list_activity[pcap_index]
+                          pcap_index=pcap_index+1
+                          print(app_name,label_activity)
                           i=0
                           #employee_dict.clear()
                           cattura=cattura+1
@@ -74,9 +99,9 @@ for cartella, sottocartelle, files in os.walk(os.getcwd()):
                                             last_time_msg=actual_time_msg
                                      i=i+1
                                      string_catt="c"+str(cattura)
-                                     employee_dict.append([string_catt,biflux,protocol,src_port,dst_port,iat_pkt,pkt_size,iat_msg,msg_size])
+                                     employee_dict.append([app_name,label_activity,string_catt,biflux,protocol,src_port,dst_port,iat_pkt,pkt_size,iat_msg,msg_size])
 if employee_dict:
-  df = pd.DataFrame(employee_dict, columns =['CaptureNumber', 'BIFLUXS','PROTOCOL','SOURCE_PORT','DESTINATION_PORT','ARRIVAL_TIME_PACKET','PACKET_SIZE','ARRIVAL_TIME_MSG','SIZE_MESSAGE'])
+  df = pd.DataFrame(employee_dict, columns =['App_Name','Activity','CaptureNumber', 'BIFLUXS','PROTOCOL','SOURCE_PORT','DESTINATION_PORT','ARRIVAL_TIME_PACKET','PACKET_SIZE','ARRIVAL_TIME_MSG','SIZE_MESSAGE'])
   df.sort_values(by=['CaptureNumber','BIFLUXS'], inplace = True)
   #df.to_csv("midterm.csv", index=False, sep=",")
   print(df)
@@ -99,6 +124,8 @@ if employee_dict:
                       list_biflux=(filtered_df_capture.drop_duplicates(subset = "BIFLUXS"))
                       for i in list_biflux.index:
                                 bflx=str(list_biflux["BIFLUXS"][i])
+                                AppName=(df["App_Name"][i])
+                                ActivtyLbl=(df["Activity"][i])
                                 #print(bflx)
                                 df_mask=filtered_df_capture['BIFLUXS']==bflx
                                 filtered_df = filtered_df_capture[df_mask]
@@ -137,12 +164,12 @@ if employee_dict:
                                 list_MsgSize.clear()
                                 list_SrcPrt.clear()
                                 list_DstPrt.clear()
-                                employee_dict.append([cattura_str,bflx,Prtl,SrcPrtList,DstPrtList,IatPktList,SizePktList,IatMsgList,SizeMsgList])
+                                employee_dict.append([AppName,ActivtyLbl,cattura_str,bflx,Prtl,SrcPrtList,DstPrtList,IatPktList,SizePktList,IatMsgList,SizeMsgList])
         else:
                        break
         cattura=int(cattura)+1    
   #print(employee_dict)
-  a = pd.DataFrame(employee_dict, columns =['CaptureNumber', 'BIFLUXS','PROTOCOL','SOURCE_PORT','DESTINATION_PORT','ARRIVAL_TIME_PACKET','PACKET_SIZE','ARRIVAL_TIME_MSG','SIZE_MESSAGE'])
+  a = pd.DataFrame(employee_dict, columns =['App_Name','Activty','CaptureNumber', 'BIFLUXS','PROTOCOL','SOURCE_PORT','DESTINATION_PORT','ARRIVAL_TIME_PACKET','PACKET_SIZE','ARRIVAL_TIME_MSG','SIZE_MESSAGE'])
   a.to_csv("PCAP.csv", index=False, sep=";",mode="w")
  
   
