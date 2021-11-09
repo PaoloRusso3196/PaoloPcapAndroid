@@ -14,27 +14,29 @@ list_MsgSize=[]
 TypeList=["App_Name","Activty"]
 cattura=1
 "----------------------------------------------------------------------"
-def PloatCdf(list_element):
+def PloatCdf(list_element,type_name,labelName):
     List_Feature=[]
     for x in list_element:
        List_Feature.append(x)
     
     List_Feature=list(map(float,List_Feature))
     List_Feature.sort()
-    
-  
-    cumulative = np.cumsum(List_Feature)
-    plt.plot(cumulative,label="cattura_csv")
+    cdf = np.cumsum(List_Feature)
+    plt.plot(List_Feature, cdf, label =labelName)
+    plt.xlabel("X")
+    plt.ylabel("Probability Values")
+    plt.title("CDF  of "+ type_name)
+    plt.legend()
     plt.show()
-    
+   
     
 #1)CASO IN CUI VADO A CONSIDERARE IL DATAFRAME PER APP O PER ATTIVITA'
 "-----------------------------------------------------------------------"
 df = pd.read_csv(path, delimiter=';')
 df1= pd.read_csv(path, delimiter=';')
-
+z=-1
 for x in TypeList:
-    
+    z=z+1
     type_value=df1.drop_duplicates(subset =x)
     for type_i in type_value.index:
         type_name=str(df1[x][type_i])
@@ -50,15 +52,20 @@ for x in TypeList:
                           list_IatMsg=ast.literal_eval((iatmsg_csv))
                           msgsz_csv=str(df["SIZE_MESSAGE"][i])
                           list_MsgSize=ast.literal_eval((msgsz_csv))
-                 #print(list_IatPkt)
-                  #PloatCdf(list_IatPkt)
-                  #PloatCdf(list_PktSize)
-                  #PloatCdf(list_IatMsg)
-                  #PloatCdf(list_MsgSize)
+                  print(z)
+                  if z==0:
+                        type_name="APP: "+type_name
+                  elif z==1:
+                        type_name="ACTIVITY: "+type_name
+                  PloatCdf(list_IatPkt,type_name,"IatPkt")
+                  PloatCdf(list_PktSize,type_name,"PktSize")
+                  PloatCdf(list_IatMsg,type_name,"IatMsg")
+                  PloatCdf(list_MsgSize,type_name,"MsgSize")
                   list_IatPkt.clear()
                   list_PktSize.clear()
                   list_IatMsg.clear()
                   list_MsgSize.clear()
+
 "..........................................................................................."                  
 #2)CASO IN CUI VADO A CONSIDERARE IL DATAFRAME PRIMA PER APP E POI PER L' ATTIVITA' ASSOCIATA
 "--------------------------------------------------------------------------------"
@@ -77,7 +84,7 @@ for app_i in app.index:
           df_capAct=filtered_df_capture[TypeList[1]]==Activity
           filtered_AppAct = filtered_df_capture[df_capAct]
           
-          print(filtered_AppAct)
+          #print(filtered_AppAct)
           if len(filtered_AppAct)>0:
                     for i in filtered_AppAct.index:
                             iatpkt_csv=str(df["ARRIVAL_TIME_PACKET"][i])
@@ -88,11 +95,12 @@ for app_i in app.index:
                             list_IatMsg=ast.literal_eval((iatmsg_csv))
                             msgsz_csv=str(df["SIZE_MESSAGE"][i])
                             list_MsgSize=ast.literal_eval((msgsz_csv))
-                    #print(list_IatPkt)
-                    #PloatCdf(list_IatPkt)
-                    #PloatCdf(list_PktSize)
-                    #PloatCdf(list_IatMsg)
-                    #PloatCdf(list_MsgSize)
+                    print(filtered_AppAct)
+                    s=appName+",ACTIVITY:"+Activity
+                    PloatCdf(list_IatPkt,s,"IatPkt")
+                    PloatCdf(list_PktSize,s,"PktSize")
+                    PloatCdf(list_IatMsg,s,"IatMsg")
+                    PloatCdf(list_MsgSize,s,"MsgSize")
                     list_IatPkt.clear()
                     list_PktSize.clear()
                     list_IatMsg.clear()
