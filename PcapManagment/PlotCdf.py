@@ -5,7 +5,7 @@ import numpy as np
 import scipy
 import ast
 import matplotlib.pyplot as plt
-path="C:/Users/Utente/Desktop/PcapManage/PCAP.csv"
+#path="C:/Users/Utente/Desktop/PcapManage/PCAP.csv"
 list_IatPkt=[]
 list_IatMsg=[]
 list_PktSize=[]
@@ -34,6 +34,10 @@ def PloatCdf(list_element,type_name,labelName):
     
 #1)CASO IN CUI VADO A CONSIDERARE IL DATAFRAME PER APP O PER ATTIVITA'
 "-----------------------------------------------------------------------"
+for cartella, sottocartelle, files in os.walk(os.getcwd()):
+              path=cartella
+              break
+path=path+"/PCAP.csv"
 df = pd.read_csv(path, delimiter=';')
 df1= pd.read_csv(path, delimiter=';')
 z=-1
