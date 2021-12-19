@@ -68,7 +68,7 @@ for cartella, sottocartelle, files in os.walk(os.getcwd()):
                                      pkt=a[i]
                                      #pkt.show()
                                      if i==0:
-                                         actual_time_pkt=pkt.time
+                                         actual_time_pkt=0
                                          last_time_pkt=0
                                      else:
                                          actual_time_pkt=pkt.time
@@ -88,7 +88,7 @@ for cartella, sottocartelle, files in os.walk(os.getcwd()):
                                             load=(pkt[Raw].load)
                                             msg_size=len(load)
                                             if i==0:
-                                                actual_time_msg=pkt.getlayer(Raw).time
+                                                actual_time_msg=0
                                                 last_time_msg=0
                                             else:
                                                 actual_time_msg=pkt.getlayer(Raw).time
