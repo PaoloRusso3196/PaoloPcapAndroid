@@ -1,0 +1,1 @@
+SSLKEYLOGFILE="$PWD/.script_bash/sslkeylogfile.txt" mitmproxy --mode socks5  --listen-port 8080 --cert-passphrase PASS 
